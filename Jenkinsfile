@@ -4,30 +4,39 @@ pipeline {
     stages {
         stage('Start') {
             steps {
-                echo 'Lab_1: nginx/custom'
+                echo 'Lab_2: started by GitHub'
             }
         }
 
-        stage('Build nginx/custom') {
+        stage('Image build') {
             steps {
-                sh 'docker build -t nginx/custom:latest .'
+                sh "docker build -t prikm:latest ."
+                sh "docker tag prikm vladsembai/prikm:latest"
+                sh "docker tag prikm vladsembai/prikm:$BUILD_NUMBER"
             }
         }
 
-        stage('Test nginx/custom') {
+        stage('Push to registry') {
             steps {
-                echo 'Pass'
+                withDockerRegistry([ credentialsId: "dockerhub_token", url: "" ])
+                {
+                    sh "docker push vladsembai/prikm:latest"
+                    sh "docker push vladsembai/prikm:$BUILD_NUMBER"
+                }
             }
         }
 
-        stage('Deploy nginx/custom'){
+        stage('Deploy image'){
             steps{
                 sh "docker stop \$(docker ps -q) || true"
                 sh "docker container prune --force"
                 sh "docker image prune --force"
                 //sh "docker rmi \$(docker images -q) || true"
-                sh "docker run -d -p 80:80 nginx/custom:latest"
+                sh "docker run -d -p 80:80 vladsembai/prikm"
             }
         }
     }   
 }
+
+
+

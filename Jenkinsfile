@@ -14,6 +14,15 @@ pipeline {
                 sh "docker tag prikm vladsembai/prikm:latest"
                 sh "docker tag prikm vladsembai/prikm:$BUILD_NUMBER"
             }
+            post{
+                failure {
+                    script {
+                    // Send Telegram notification on success
+                        telegramSend message: "Job Name: ${env.JOB_NAME}\nBranch: ${env.GIT_BRANCH}\nBuild #${env.BUILD_NUMBER}: ${currentBuild.currentResult}\nFailure stage: '${env.STAGE_NAME}'"
+                    }
+                }
+            }
+
         }
 
         stage('Push to registry') {
@@ -22,6 +31,14 @@ pipeline {
                 {
                     sh "docker push vladsembai/prikm:latest"
                     sh "docker push vladsembai/prikm:$BUILD_NUMBER"
+                }
+            }
+            post{
+                failure {
+                    script {
+                    // Send Telegram notification on success
+                        telegramSend message: "Job Name: ${env.JOB_NAME}\nBranch: ${env.GIT_BRANCH}\nBuild #${env.BUILD_NUMBER}: ${currentBuild.currentResult}\nFailure stage: '${env.STAGE_NAME}'"
+                    }
                 }
             }
         }
@@ -34,8 +51,25 @@ pipeline {
                 //sh "docker rmi \$(docker images -q) || true"
                 sh "docker run -d -p 80:80 vladsembai/prikm"
             }
+            post{
+                failure {
+                    script {
+                    // Send Telegram notification on success
+                        telegramSend message: "Job Name: ${env.JOB_NAME}\nBranch: ${env.GIT_BRANCH}\nBuild #${env.BUILD_NUMBER}: ${currentBuild.currentResult}\nFailure stage: '${env.STAGE_NAME}'"
+                    }
+                }
+            }
         }
-    }   
+    } 
+    post{
+        success{
+            script{
+                // Send Telegram notification on success
+                telegramSend message: "Job Name: ${env.JOB_NAME}\n Branch: ${env.GIT_BRANCH}\nBuild #${env.BUILD_NUMBER}: ${currentBuild.currentResult}"
+            }
+        }
+    }
+  
 }
 
 

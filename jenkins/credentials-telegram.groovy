@@ -8,8 +8,8 @@ def getEnvVariable(String name) {
     return System.getenv(name)
 }
 
-def newtelegramBotToken = getEnvVariable('TELEGRAM_JENKINS_BOT_TOKEN')
-def newtelegramBotName = getEnvVariable('TELEGRAM_JENKINS_BOT_NAME')
+def newtelegramBotToken = getEnvVariable('TELEGRAM_BOT_TOKEN')
+def newtelegramBotName = getEnvVariable('TELEGRAM_BOT_NAME')
 
 // Налаштування плагіну Telegram Bot
 def jenkinsHome = "/var/jenkins_home"

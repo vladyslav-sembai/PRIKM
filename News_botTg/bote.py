@@ -4,6 +4,15 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
 from os import environ
+import logging
+
+FORMAT = '%(asctime)-15s %(name)s %(levelname)s: %(message)s'
+logging.basicConfig(level=logging.INFO, format=FORMAT)
+logging.basicConfig(level=logging.ERROR, format=FORMAT)
+logger = logging.getLogger()
+
+TOKEN = environ.get("NEWS_BOT_TOKEN","define me")
+
 # Встановлюємо логування
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -38,7 +47,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 def main() -> None:
     # Ваш токен від BotFather
-    TOKEN = environ.get("NEWS_BOT_TOKEN","define me")
+    application = Application.builder().token(TOKEN).build()
+
+    logger.info("News bot Started")
 
     # Створюємо ApplicationBuilder та реєструємо команди
     application = ApplicationBuilder().token(TOKEN).build()

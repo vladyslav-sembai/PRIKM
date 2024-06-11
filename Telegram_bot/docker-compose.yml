@@ -1,0 +1,13 @@
+---
+version: '3.3'
+
+services:
+  course_valute:
+    image: valute-tg_bot:latest
+    build:
+      context: valute_botTg/.
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: valute-tg_bot
+    environment:
+      MY_TELEGRAM_BOT_TOKEN: ${MY_TELEGRAM_BOT_TOKEN}

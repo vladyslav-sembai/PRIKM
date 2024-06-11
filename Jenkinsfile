@@ -1,22 +1,26 @@
 pipeline {
     agent any
-    
     environment {
-        DOCKER_IMAGE = 'vladsembai/prikm'
+		MY_TELEGRAM_BOT_TOKEN = credentials('cours_tg_bot_token')
+
+		DOCKER_IMAGE = 'vladsembai/prikm'
     }
-    
     stages {
         stage('Start') {
             steps {
-                echo 'Lab_5: start for monitoring and Jenkins'
+                echo 'Cursova_Bot:'
             }
         }
 
-        stage('Image build') {
+        stage('Build Bot services') {
             steps {
-                sh "docker build -t prikm:latest ."
-                sh "docker tag prikm $DOCKER_IMAGE:latest"
-                sh "docker tag prikm $DOCKER_IMAGE:$BUILD_NUMBER"
+                sh 'export MY_TELEGRAM_BOT_TOKEN=$MY_TELEGRAM_BOT_TOKEN'
+                dir("Telegram_bot")
+				{
+					sh 'docker-compose build'
+				}
+				sh 'docker tag cours-tg_bot:latest $DOCKER_IMAGE:kursova_bot-latest'
+                sh 'docker tag cours-tg_bot:latest $DOCKER_IMAGE:kursova_bot-$BUILD_NUMBER'
             }
             post{
                 failure {
@@ -26,15 +30,28 @@ pipeline {
                     }
                 }
             }
-            
         }
 
-        stage('Push to registry') {
+        stage('Test Bot services') {
+            steps {
+                echo 'Pass'
+            }
+            post{
+                failure {
+                    script {
+                    // Send Telegram notification on success
+                        telegramSend message: "Job Name: ${env.JOB_NAME}\nBranch: ${env.GIT_BRANCH}\nBuild #${env.BUILD_NUMBER}: ${currentBuild.currentResult}\nFailure stage: '${env.STAGE_NAME}'"
+                    }
+                }
+            }
+        }
+
+		stage('Push to registry') {
             steps {
                 withDockerRegistry([ credentialsId: "dockerhub_token", url: "" ])
                 {
-                    sh "docker push $DOCKER_IMAGE:latest"
-                    sh "docker push $DOCKER_IMAGE:$BUILD_NUMBER"
+                    sh "docker push $DOCKER_IMAGE:kursova_bot-latest"
+                    sh "docker push $DOCKER_IMAGE:kursova_bot-$BUILD_NUMBER"
                 }
             }
             post{
@@ -47,13 +64,14 @@ pipeline {
             }
         }
 
-        stage('Deploy image'){
-            steps{
-                sh "docker stop \$(docker ps | grep '$DOCKER_IMAGE' | awk '{print \$1}') || true"
-                sh "docker container prune --force"
-                sh "docker image prune --force"
-                //sh "docker rmi \$(docker images -q) || true"
-                sh "docker run -d -p 80:80 $DOCKER_IMAGE"
+        stage('Deploy Bot services') {
+            steps {
+				dir("Telegram_bot"){
+					sh "docker-compose down -v"
+                	sh "docker container prune --force"
+                	sh "docker image prune --force"
+                	sh "docker-compose up -d --build"
+				}
             }
             post{
                 failure {
@@ -75,7 +93,3 @@ pipeline {
         }
     }
 }
-
-
-
-

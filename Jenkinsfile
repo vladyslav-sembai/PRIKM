@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+
 		MY_TELEGRAM_BOT_TOKEN = credentials('cours_tg_bot_token')
 
 		DOCKER_IMAGE = 'vladsembai/prikm'

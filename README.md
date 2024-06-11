@@ -1,1 +1,1 @@
-# PRIKM
+# Kursova

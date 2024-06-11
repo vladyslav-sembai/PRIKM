@@ -8,8 +8,8 @@ def getEnvVariable(String name) {
     return System.getenv(name)
 }
 
-def newtelegramBotToken = getEnvVariable('TELEGRAM_BOT_TOKEN')
-def newtelegramBotName = getEnvVariable('TELEGRAM_BOT_NAME')
+def newtelegramBotToken = getEnvVariable('TELEGRAM_JENKINS_BOT_TOKEN')
+def newtelegramBotName = getEnvVariable('TELEGRAM_JENKINS_BOT_NAME')
 
 // Налаштування плагіну Telegram Bot
 def jenkinsHome = "/var/jenkins_home"
@@ -19,8 +19,6 @@ try{
     def xml = new XmlSlurper().parse(telegramConfigFile)
     
     // Читання поточних значень
-    println "Current Bot Token: ${xml.botToken}"
-    println "Current Bot Name: ${xml.botName}"
     if((xml.botToken == newtelegramBotToken) || (xml.botName == newtelegramBotName)){
         println "no change"
     }
@@ -37,8 +35,6 @@ try{
     
     telegramConfigFile.text = writer.toString()
     
-    println "Updated Bot Token: ${newtelegramBotToken}"
-    println "Updated Bot Name: ${newtelegramBotName}"
     
 }catch(FileNotFoundException ex) {
     println "Configuration file not found, creating a new one!"

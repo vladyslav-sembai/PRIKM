@@ -1,22 +1,27 @@
 pipeline {
     agent any
-    
     environment {
-        DOCKER_IMAGE = 'vladsembai/prikm'
+		NEWS_BOT_TOKEN = credentials('news_tg_bot_token')
+
+		DOCKER_IMAGE = 'vladsembai/prikm'
     }
-    
     stages {
         stage('Start') {
             steps {
-                echo 'Lab_5: start for monitoring and Jenkins'
+                echo 'Cursova_Bot'
             }
         }
 
-        stage('Image build') {
+        stage('Build News service') {
             steps {
-                sh "docker build -t prikm:latest ."
-                sh "docker tag prikm $DOCKER_IMAGE:latest"
-                sh "docker tag prikm $DOCKER_IMAGE:$BUILD_NUMBER"
+                sh 'export NEWS_BOT_TOKEN=$NEWS_BOT_TOKEN'
+                dir("News_botTg")
+				{
+					sh 'docker-compose build'
+				}
+				sh 'docker tag news-tg_bot:latest $DOCKER_IMAGE:latest'
+                sh 'docker tag news-tg_bot:latest $DOCKER_IMAGE:$BUILD_NUMBER'
+
             }
             post{
                 failure {
@@ -26,10 +31,9 @@ pipeline {
                     }
                 }
             }
-            
         }
 
-        stage('Push to registry') {
+		stage('Push to registry') {
             steps {
                 withDockerRegistry([ credentialsId: "dockerhub_token", url: "" ])
                 {
@@ -47,13 +51,14 @@ pipeline {
             }
         }
 
-        stage('Deploy image'){
-            steps{
-                sh "docker stop \$(docker ps | grep '$DOCKER_IMAGE' | awk '{print \$1}') || true"
-                sh "docker container prune --force"
-                sh "docker image prune --force"
-                //sh "docker rmi \$(docker images -q) || true"
-                sh "docker run -d -p 80:80 $DOCKER_IMAGE"
+        stage('Deploy News service') {
+            steps {
+				dir("News_botTg"){
+					sh "docker-compose down"
+                	sh "docker container prune --force"
+                	sh "docker image prune --force"
+                	sh "docker-compose up -d --build"
+				}
             }
             post{
                 failure {
@@ -75,7 +80,3 @@ pipeline {
         }
     }
 }
-
-
-
-

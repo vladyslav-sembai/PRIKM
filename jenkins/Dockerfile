@@ -3,11 +3,12 @@ FROM jenkins/jenkins
 ENV JENKINS_USER admin
 ENV JENKINS_PASS admin
 
+
 # Skip initial setup
 ENV JAVA_OPTS -Djenkins.install.runSetupWizard=false
 COPY plugins.txt /usr/share/jenkins/plugins.txt
 RUN jenkins-plugin-cli -f /usr/share/jenkins/plugins.txt
-COPY config.xml /usr/share/jenkins/ref/jobs/Lab_7/config.xml
+COPY config.xml /usr/share/jenkins/ref/jobs/Kursova/config.xml
 
 USER root
 # Create credentials

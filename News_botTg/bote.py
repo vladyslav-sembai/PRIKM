@@ -3,6 +3,7 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
+from os import environ
 # Встановлюємо логування
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -37,7 +38,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 def main() -> None:
     # Ваш токен від BotFather
-    TOKEN = '7386749945:AAHNFDac3Ue-DFI_3U6fW5-jEvRFPU58HIk'
+    TOKEN = environ.get("NEWS_BOT_TOKEN","define me")
 
     # Створюємо ApplicationBuilder та реєструємо команди
     application = ApplicationBuilder().token(TOKEN).build()
@@ -48,5 +49,5 @@ def main() -> None:
     # Запускаємо бота
     application.run_polling()
 
-if __name__ == '__main__':
+if name == 'main':
     main()

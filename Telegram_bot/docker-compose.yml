@@ -5,7 +5,7 @@ services:
   course_valute:
     image: valute-tg_bot:latest
     build:
-      context: valute_botTg/.
+      context: .
       dockerfile: Dockerfile
     restart: unless-stopped
     container_name: valute-tg_bot
